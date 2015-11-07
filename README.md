@@ -1,8 +1,8 @@
 # Lispy
 A simple Lisp implementation in C.
 
-This project was inspired by Daniel Holden's book (*Build Your Own Lisp*)
-[http://www.buildyourownlisp.com].
+This project was inspired by Daniel Holden's book 
+[*Build Your Own Lisp*](http://www.buildyourownlisp.com).
 
 # Requirements
 - readline
@@ -11,7 +11,7 @@ This project was inspired by Daniel Holden's book (*Build Your Own Lisp*)
 # Usage
 Run `make` to build.
 
-Executable file `lispy` will be in `bin`.
+Executable file `lispy` will be in `bin/`.
 
 ## Examples
 ```
