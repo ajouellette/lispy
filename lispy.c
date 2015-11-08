@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	symbol  : '+' | '-' | '*' | '/' | '%' | '^' ;                 \
 	sexpr   : '(' <expr>* ')' ;                                   \
 	expr    : <number> | <symbol> | <sexpr> ;                     \
-	lispy   : /^/ <operator> <expr>+ /$/ ;                        \
+	lispy   : /^/ <expr>* /$/ ;                                   \
 	", Number, Symbol, Sexpr, Expr, Lispy);
 
 	puts("Lispy version 0.0.0.1.1");
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	}
 
 	// cleanup
-	mpc_cleanup(4, Number, Symbol, Sexpr, Expr, Lispy);
+	mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Lispy);
 	return 0;
 }
 
