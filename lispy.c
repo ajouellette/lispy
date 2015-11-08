@@ -20,21 +20,23 @@ lval eval_op(lval x, char *op, lval y);
 int main(int argc, char *argv[])
 {
 	// create parsers
-	mpc_parser_t *Number   = mpc_new("number");
-	mpc_parser_t *Operator = mpc_new("operator");
-	mpc_parser_t *Expr     = mpc_new("expr");
-	mpc_parser_t *Lispy    = mpc_new("lispy");
+	mpc_parser_t *Number  = mpc_new("number");
+	mpc_parser_t *Symbol  = mpc_new("symbol");
+	mpc_parser_t *Sexpr   = mpc_new("sexpr");
+	mpc_parser_t *Expr    = mpc_new("expr");
+	mpc_parser_t *Lispy   = mpc_new("lispy");
 
 	// define language
 	mpca_lang(MPCA_LANG_DEFAULT,
-	"                                                              \
-	number   : /-?[0-9]+\\.?[0-9]*/ ;                              \
-	operator : '+' | '-' | '*' | '/' | '%' | '^' ;                 \
-	expr     : <number> | '(' <operator> <expr>+ ')' ;             \
-	lispy    : /^/ <operator> <expr>+ /$/ ;                        \
-	", Number, Operator, Expr, Lispy);
+	"                                                             \
+	number  : /-?[0-9]+\\.?[0-9]*/ ;                              \
+	symbol  : '+' | '-' | '*' | '/' | '%' | '^' ;                 \
+	sexpr   : '(' <expr>* ')' ;                                   \
+	expr    : <number> | <symbol> | <sexpr> ;                     \
+	lispy   : /^/ <operator> <expr>+ /$/ ;                        \
+	", Number, Symbol, Sexpr, Expr, Lispy);
 
-	puts("Lispy version 0.0.0.1.0");
+	puts("Lispy version 0.0.0.1.1");
 	puts("Press Ctrl-c to exit\n");
 
 	while (1) {
@@ -62,7 +64,7 @@ int main(int argc, char *argv[])
 	}
 
 	// cleanup
-	mpc_cleanup(4, Number, Operator, Expr, Lispy);
+	mpc_cleanup(4, Number, Symbol, Sexpr, Expr, Lispy);
 	return 0;
 }
 
