@@ -6,7 +6,9 @@
  *
  */
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <editline/readline.h>
 #include "mpc/mpc.h"
@@ -16,6 +18,8 @@
 lval eval(mpc_ast_t *tree);
 /* Evaluate x <operation> y */
 lval eval_op(lval x, char *op, lval y);
+/* Is the string all blank */
+bool is_blank(char *string);
 
 int main(int argc, char *argv[])
 {
@@ -37,12 +41,16 @@ int main(int argc, char *argv[])
 	", Number, Symbol, Sexpr, Expr, Lispy);
 
 	puts("Lispy version 0.0.0.1.1");
-	puts("Press Ctrl-c to exit\n");
+	puts("Type \'exit\' to exit\n");
 
 	while (1) {
 
 		// display prompt and get input
 		char *input = readline("lispy> ");
+		if (strcmp(input, "exit") == 0)
+			return 0;
+		if (is_blank(input))
+			continue;
 
 		// add input to history
 		add_history(input);
@@ -115,4 +123,15 @@ lval eval_op(lval x, char *op, lval y)
 	if (strcmp(op, "^") == 0) { return lval_num(pow(x.num, y.num)); }
 
 	return lval_err(LERR_BAD_OP);
+}
+
+bool is_blank(char *string)
+{
+	int length = strlen(string);
+	for (int i = 0; i < length; i++) {
+		if (!isblank(string[i])) {
+			return false;
+		}
+	}
+	return true;
 }
