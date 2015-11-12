@@ -55,8 +55,10 @@ int main(int argc, char *argv[])
 
 		// display prompt and get input
 		char *input = readline("lispy> ");
-		if (strcmp(input, "exit") == 0)
-			return 0;
+		if (strcmp(input, "exit") == 0) {
+			free(input);
+			break;
+		}
 		if (is_blank(input))
 			continue;
 
@@ -147,7 +149,7 @@ lval *lval_eval_sexpr(lval *v)
 	lval* f = lval_pop(v, 0);
 	if (f->type != LVAL_SYM) {
 		lval_del(f); lval_del(v);
-		return lval_err("S-expression Does not start with symbol!");
+		return lval_err("s-expression does not start with a symbol");
 	}
 
 	// builtin operations
@@ -246,3 +248,4 @@ bool is_blank(char *string)
 	}
 	return true;
 }
+
