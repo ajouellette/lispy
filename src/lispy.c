@@ -11,7 +11,7 @@
 #include <string.h>
 #include <math.h>
 #include <editline/readline.h>
-#include "mpc/mpc.h"
+#include "mpc.h"
 #include "lvalue.h"
 
 /* Read number from parse tree */
@@ -20,6 +20,9 @@ lval *lval_read_num(mpc_ast_t *tree);
 lval *lval_read(mpc_ast_t *tree);
 /* Add x (lval) to v (a list of lvals) */
 lval *lval_add(lval *v, lval *x);
+/* Evaluate an S-expression */
+lval *lval_eval_sexpr(lval *v);
+lval *lval_eval(lval *v);
 /* Is the string all blank */
 bool is_blank(char *string);
 
@@ -119,6 +122,20 @@ lval *lval_add(lval *v, lval *x)
 	return v;
 }
 
+lval *lval_eval_sexpr(lval *v)
+{
+	// evaluate children
+	for (int i = 0; i < v->count; i++) {
+		v->cell[i] = lval_eval(v->cell[i]);
+	}
+
+	return v;
+}
+
+lval *lval_eval(lval *v)
+{
+	return v;
+}
 
 bool is_blank(char *string)
 {
