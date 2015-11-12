@@ -4,7 +4,7 @@
 /*
  * Lisp value
  */
-typedef struct {
+typedef struct lval {
 	int type;       // 0 if number, 1 if error
 	double num;     // value of number
 	char *err;      // error message
