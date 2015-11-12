@@ -226,8 +226,12 @@ lval* builtin_op(lval* a, char* op) {
 	lval* x = lval_pop(a, 0);
 
 	// If no arguments and sub then perform unary negation
-	if ((strcmp(op, "-") == 0) && a->count == 0) {
-		x->num = -x->num;
+	if (a->count == 0) {
+		if (strcmp(op, "-") == 0) {
+			x->num = -x->num;
+		} else {
+			x = lval_err("invalid syntax");
+		}
 	}
 
 	// While there are still elements remaining
