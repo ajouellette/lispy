@@ -14,10 +14,12 @@
 #include "mpc/mpc.h"
 #include "lvalue.h"
 
-/* Evaluate a parse tree */
-lval eval(mpc_ast_t *tree);
-/* Evaluate x <operation> y */
-lval eval_op(lval x, char *op, lval y);
+/* Read number from parse tree */
+lval *lval_read_num(mpc_ast_t *tree);
+/* read expression from parse tree */
+lval *lval_read(mpc_ast_t *tree);
+/* Add x (lval) to v (a list of lvals) */
+lval *lval_add(lval *v, lval *x);
 /* Is the string all blank */
 bool is_blank(char *string);
 
@@ -58,9 +60,9 @@ int main(int argc, char *argv[])
 		// parse input and evaluate
 		mpc_result_t r;
 		if (mpc_parse("<stdin>", input, Lispy, &r)) {
-			// on success print result
-			lval result = eval(r.output);
-			lval_println(result);
+			lval *x = lval_read(r.output);
+			lval_println(x);
+			lval_del(x);
 			mpc_ast_delete(r.output);
 		} else {
 			// otherwise print error
@@ -76,54 +78,47 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-lval eval(mpc_ast_t *tree)
+
+lval *lval_read_num(mpc_ast_t *tree)
 {
-	// if tagged as number, return it, checking for errors
-	if (strstr(tree->tag, "number")) {
-		errno = 0;
-		double x = strtod(tree->contents, NULL);
-		return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
-	}
+	errno = 0;
+	double x = strtod(tree->contents, NULL);
+	return errno != ERANGE ?
+		lval_num(x) : lval_err("invalid number");
+}
 
-	// the operator is the 2nd child
-	char *op = tree->children[1]->contents;
+lval *lval_read(mpc_ast_t *tree)
+{
+	// symbol or number
+	if (strstr(tree->tag, "number")) { return lval_read_num(tree); }
+	if (strstr(tree->tag, "symbol")) { return lval_sym(tree->contents); }
 
-	lval x = eval(tree->children[2]);
+	// create list
+	lval *x = NULL;
+	if (strcmp(tree->tag, ">") == 0) { x = lval_sexpr(); }
+	if (strstr(tree->tag, "sexpr")) { x = lval_sexpr(); }
 
-	int i = 3;
-	while (strstr(tree->children[i]->tag, "expr")) {
-		x = eval_op(x, op, eval(tree->children[i]));
-		i++;
+	// fill in list
+	for (int i = 0; i < tree->children_num; i++) {
+		if (strcmp(tree->children[i]->contents, "(") == 0) continue;
+		if (strcmp(tree->children[i]->contents, ")") == 0) continue;
+		if (strcmp(tree->children[i]->contents, "{") == 0) continue;
+		if (strcmp(tree->children[i]->contents, "}") == 0) continue;
+		if (strcmp(tree->children[i]->tag, "regex") == 0) continue;
+		x = lval_add(x, lval_read(tree->children[i]));
 	}
 
 	return x;
 }
 
-lval eval_op(lval x, char *op, lval y)
+lval *lval_add(lval *v, lval *x)
 {
-	// if either value is an error, return it
-	if (x.type == LVAL_ERR) { return x; }
-	if (y.type == LVAL_ERR) { return y; }
-
-	// otherwise fo math
-	if (strcmp(op, "+") == 0) { return lval_num(x.num + y.num); }
-	if (strcmp(op, "-") == 0) { return lval_num(x.num - y.num); }
-	if (strcmp(op, "*") == 0) { return lval_num(x.num * y.num); }
-	// division is special
-	if (strcmp(op, "/") == 0) {
-		return y.num == 0
-			? lval_err(LERR_DIV_ZERO)
-			: lval_num(x.num / y.num);
-	}
-	if (strcmp(op, "%") == 0) {
-		return y.num == 0
-			? lval_err(LERR_DIV_ZERO)
-			: lval_num(fmod(x.num, y.num));
-	}
-	if (strcmp(op, "^") == 0) { return lval_num(pow(x.num, y.num)); }
-
-	return lval_err(LERR_BAD_OP);
+	v->count++;
+	v->cell = realloc(v->cell, sizeof(lval*) * v->count);
+	v->cell[v->count - 1] = x;
+	return v;
 }
+
 
 bool is_blank(char *string)
 {
