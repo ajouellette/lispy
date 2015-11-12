@@ -67,6 +67,7 @@ void lval_del(lval *v)
 void lval_print(lval *v)
 {
 	switch (v->type) {
+		// print number with %g to avoid trailing zeroes
 		case LVAL_NUM:   printf("%g", v->num); break;
 		case LVAL_ERR:   printf("Error: %s", v->err); break;
 		case LVAL_SYM:   printf("%s", v->sym); break;
@@ -87,5 +88,9 @@ void lval_expr_print(lval *v, char open, char close)
 	putchar(close);
 }
 
-void lval_println(lval *v) { lval_print(v); putchar('\n'); }
+void lval_println(lval *v)
+{
+	lval_print(v);
+	putchar('\n');
+}
 

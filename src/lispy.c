@@ -20,12 +20,16 @@ lval *lval_read_num(mpc_ast_t *tree);
 lval *lval_read(mpc_ast_t *tree);
 /* Add x (lval) to v (a list of lvals) */
 lval *lval_add(lval *v, lval *x);
+
+/* Evaluate an expression */
+lval *lval_eval(lval *v);
 /* Evaluate an S-expression */
 lval *lval_eval_sexpr(lval *v);
-lval *lval_eval(lval *v);
 lval* lval_take(lval* v, int i);
 lval* lval_pop(lval* v, int i);
+/* Evaluate a built-in operation */
 lval* builtin_op(lval* a, char* op);
+
 /* Is the string all blank */
 bool is_blank(char *string);
 
@@ -51,6 +55,7 @@ int main(int argc, char *argv[])
 	puts("Lispy version 0.0.0.1.1");
 	puts("Type \'exit\' to exit\n");
 
+	// Read, Evaluate, Print loop
 	while (1) {
 
 		// display prompt and get input
@@ -65,9 +70,10 @@ int main(int argc, char *argv[])
 		// add input to history
 		add_history(input);
 
-		// parse input and evaluate
+		// parse input
 		mpc_result_t r;
 		if (mpc_parse("<stdin>", input, Lispy, &r)) {
+			// on success evaluate and print
 			lval *x = lval_eval(lval_read(r.output));
 			lval_println(x);
 			lval_del(x);
@@ -91,6 +97,7 @@ lval *lval_read_num(mpc_ast_t *tree)
 {
 	errno = 0;
 	double x = strtod(tree->contents, NULL);
+	// make sure that conversion was successful
 	return errno != ERANGE ?
 		lval_num(x) : lval_err("invalid number");
 }

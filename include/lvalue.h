@@ -41,10 +41,16 @@ lval *lval_sexpr(void);
 void lval_del(lval *v);
 
 /*
- * Print an lval
+ * Print an expression
  */
 void lval_expr_print(lval *v, char open, char close);
+/*
+ * Print a lval
+ */
 void lval_print(lval *v);
+/*
+ * Print with a trailing newline
+ */
 void lval_println(lval *v);
 
 #endif
