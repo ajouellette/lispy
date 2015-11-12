@@ -23,6 +23,9 @@ lval *lval_add(lval *v, lval *x);
 /* Evaluate an S-expression */
 lval *lval_eval_sexpr(lval *v);
 lval *lval_eval(lval *v);
+lval* lval_take(lval* v, int i);
+lval* lval_pop(lval* v, int i);
+lval* builtin_op(lval* a, char* op);
 /* Is the string all blank */
 bool is_blank(char *string);
 
@@ -63,7 +66,7 @@ int main(int argc, char *argv[])
 		// parse input and evaluate
 		mpc_result_t r;
 		if (mpc_parse("<stdin>", input, Lispy, &r)) {
-			lval *x = lval_read(r.output);
+			lval *x = lval_eval(lval_read(r.output));
 			lval_println(x);
 			lval_del(x);
 			mpc_ast_delete(r.output);
@@ -129,12 +132,108 @@ lval *lval_eval_sexpr(lval *v)
 		v->cell[i] = lval_eval(v->cell[i]);
 	}
 
+	// error checking
+	for (int i = 0; i < v->count; i++) {
+		if (v->cell[i]->type == LVAL_ERR) { return lval_take(v, i); }
+	}
+
+	// Empty expression
+	if (v->count == 0) { return v; }
+
+	// single expression
+	if (v->count == 1) { return lval_take(v, 0); }
+
+	// ensure first element is symbol
+	lval* f = lval_pop(v, 0);
+	if (f->type != LVAL_SYM) {
+		lval_del(f); lval_del(v);
+		return lval_err("S-expression Does not start with symbol!");
+	}
+
+	// builtin operations
+	lval* result = builtin_op(v, f->sym);
+	lval_del(f);
+
+	return result;
+}
+
+lval* lval_eval(lval* v) {
+	// Evaluate S-expressions
+	if (v->type == LVAL_SEXPR) { return lval_eval_sexpr(v); }
+	// All other lval types remain the same
 	return v;
 }
 
-lval *lval_eval(lval *v)
-{
-	return v;
+lval* lval_pop(lval* v, int i) {
+	// Find the item at "i"
+	lval* x = v->cell[i];
+
+	// Shift memory after the item at "i" over the top
+	memmove(&v->cell[i], &v->cell[i+1],
+	sizeof(lval*) * (v->count-i-1));
+
+	// Decrease the count of items in the list
+	v->count--;
+
+	// Reallocate the memory used
+	v->cell = realloc(v->cell, sizeof(lval*) * v->count);
+	return x;
+}
+
+lval* lval_take(lval* v, int i) {
+	lval* x = lval_pop(v, i);
+	lval_del(v);
+	return x;
+}
+
+lval* builtin_op(lval* a, char* op) {
+
+	// Ensure all arguments are numbers
+	for (int i = 0; i < a->count; i++) {
+		if (a->cell[i]->type != LVAL_NUM) {
+			lval_del(a);
+			return lval_err("cannot operate on non-number");
+		}
+	}
+
+	/* Pop the first element */
+	lval* x = lval_pop(a, 0);
+
+	/* If no arguments and sub then perform unary negation */
+	if ((strcmp(op, "-") == 0) && a->count == 0) {
+		x->num = -x->num;
+	}
+
+	/* While there are still elements remaining */
+	while (a->count > 0) {
+
+		/* Pop the next element */
+		lval* y = lval_pop(a, 0);
+
+		if (strcmp(op, "+") == 0) { x->num += y->num; }
+		if (strcmp(op, "-") == 0) { x->num -= y->num; }
+		if (strcmp(op, "*") == 0) { x->num *= y->num; }
+		if (strcmp(op, "/") == 0) {
+			if (y->num == 0) {
+				lval_del(x); lval_del(y);
+				x = lval_err("division by zero"); break;
+			}
+			x->num /= y->num;
+		}
+		if (strcmp(op, "%") == 0) {
+			if (y->num == 0) {
+				lval_del(x); lval_del(y);
+				x = lval_err("division by zero"); break;
+			}
+			x->num = fmod(x->num, y->num);
+		}
+		if (strcmp(op, "^") == 0) { x->num = pow(x->num, y->num); }
+
+		lval_del(y);
+	}
+	
+	lval_del(a);
+	return x;
 }
 
 bool is_blank(char *string)
