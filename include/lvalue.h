@@ -1,11 +1,11 @@
-#ifndef _lvalue_h
-#define _lvalue_h
+#ifndef _LVALUE_H
+#define _LVALUE_H
 
 /*
  * Lisp value
  */
 typedef struct lval {
-	int type;       // 0 if number, 1 if error
+	int type;       // error, number, symbol, or s-expr
 	double num;     // value of number
 	char *err;      // error message
 	char *sym;      // symbol
@@ -19,24 +19,24 @@ typedef struct lval {
 enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR };
 
 /*
- * Create new lval number, return pointer
+ * Return pointer to a new lval number
  */
 lval *lval_num(double x);
 /*
- * Create new lval error, return pointer
+ * Return pointer to a new lval error
  */
 lval *lval_err(char *m);
 /*
- * Return pointer to new lval symbol
+ * Return pointer to a new lval symbol
  */
 lval *lval_sym(char *s);
 /*
- * Return pointer to new lval S-expr
+ * Return pointer to a new lval S-expression
  */
 lval *lval_sexpr(void);
 
 /*
- * Clean up a lval
+ * Free memory used by a lval
  */
 void lval_del(lval *v);
 

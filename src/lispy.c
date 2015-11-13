@@ -1,9 +1,12 @@
 /*
- * lispy
+ * Lispy
+ *
+ * https://github.com/aouelete/lispy
  *
  * A simple lisp implementation
  * currently only math operations implemented
  *
+ * MIT License
  */
 #include <stdlib.h>
 #include <stdbool.h>
