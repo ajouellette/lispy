@@ -1,6 +1,8 @@
 #include "mpc.h"
 #include "lvalue.h"
 #include "eval.h"
+double max(double x, double y);
+double min(double x, double y);
 
 lval *lval_read_num(mpc_ast_t *tree)
 {
@@ -177,6 +179,12 @@ lval* builtin_op(lval* a, char* op) {
 		if (strcmp(op, "^") == 0) {
 			x->num = pow(x->num, y->num);
 		}
+		if (strcmp(op, "min") == 0) {
+			x->num = min(x->num, y->num);
+		}
+		if (strcmp(op, "max") == 0) {
+			x->num = max(x->num, y->num);
+		}
 
 		lval_del(y);
 	}
@@ -185,3 +193,20 @@ lval* builtin_op(lval* a, char* op) {
 	return x;
 }
 
+double max(double x, double y)
+{
+	if (x > y) {
+		return x;
+	} else {
+		return y;
+	}
+}
+
+double min(double x, double y)
+{
+	if (x < y) {
+		return x;
+	} else {
+		return y;
+	}
+}

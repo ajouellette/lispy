@@ -37,4 +37,8 @@ lval* lval_pop(lval* v, int i);
  */
 lval* builtin_op(lval* a, char* op);
 
+double max(double x, double y);
+
+double min(double x, double y);
+
 #endif
