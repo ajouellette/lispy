@@ -29,6 +29,8 @@ lval *lval_read(mpc_ast_t *tree)
 	}
 	if (strstr(tree->tag, "sexpr")) {
 		x = lval_sexpr();
+	} else if (strstr(tree->tag, "qexpr")) {
+		x = lval_qexpr();
 	}
 
 	// fill in list

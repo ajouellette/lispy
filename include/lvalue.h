@@ -16,7 +16,7 @@ typedef struct lval {
 /*
  * Enum for possible Lisp value types
  */
-enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR };
+enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR };
 
 /*
  * Return pointer to a new lval number
@@ -34,6 +34,10 @@ lval *lval_sym(char *s);
  * Return pointer to a new lval S-expression
  */
 lval *lval_sexpr(void);
+/*
+ * Return a pointer to a new Q-expression
+ */
+lval *lval_qexpr(void);
 
 /*
  * Free memory used by a lval
