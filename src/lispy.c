@@ -34,7 +34,8 @@ int main(int argc, char *argv[])
 	mpca_lang(MPCA_LANG_DEFAULT,
 	"                                                             \
 	number : /-?[0-9]+\\.?[0-9]*/ ;                               \
-	symbol : \"list\" | \"head\" | \"tail\" | \"join\" | \"eval\" \
+	symbol : \"list\" | \"head\" | \"tail\" | \"join\"            \
+	       | \"eval\" | \"len\"                                   \
 	       | '+' | '-' | '*' | '/' | '%' | '^'                    \
 	       | \"min\" | \"max\" ;                                  \
 	sexpr  : '(' <expr>* ')' ;                                    \
