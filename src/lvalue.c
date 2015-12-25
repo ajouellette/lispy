@@ -224,5 +224,6 @@ void lenv_add_builtins(lenv *e)
 	lenv_add_builtin(e, "-", builtin_sub);
 	lenv_add_builtin(e, "*", builtin_mul);
 	lenv_add_builtin(e, "/", builtin_div);
-
+	lenv_add_builtin(e, "^", builtin_pow);
+	lenv_add_builtin(e, "%", builtin_mod);
 }

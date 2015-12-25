@@ -155,6 +155,16 @@ lval *builtin_div(lenv *e, lval *a)
 	return builtin_op(e, a, "/");
 }
 
+lval *builtin_pow(lenv *e, lval *a)
+{
+	return builtin_op(e, a, "^");
+}
+
+lval *builtin_mod(lenv *e, lval *a)
+{
+	return builtin_op(e, a, "%");
+}
+
 lval *builtin_list(lenv *e, lval *a)
 {
 	a->type = LVAL_QEXPR;
